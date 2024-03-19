@@ -105,22 +105,55 @@ I then made visualizations of these features using Power BI. The goal of this wa
 
 
 # Data Preparation
-Before creating a model to make forecasts, I need to fill in the missing data for weekend days (so that our dataset is continuous) by forward filling (copying the last known data to fill the gaps) as well as removing the time information as the data is always recorded as the same time. I also added the "Average" and "Net" columns like I did for the visualizations. I thought "Net" might be useful in the forecasting prediction if the model was to use features other than datetime ones in its predictions. I made all these changes and saved the CSV using a Jupyter Notebook file. I also did a similar process with the second dataset that was to be used for comparing the model's forecast to the real numbers. I forward filled the weekend days and created an 'Average' column using the 'High' and 'Low' columns. Any numbers with decimals exceeding the hundredth decimal place were rounded to two decimal places.
+Before creating a model to make forecasts, I need to fill in the missing data for weekend days (so that our dataset is continuous) by forward filling (copying the last known data to fill the gaps) as well as removing the time information as the data is always recorded as the same time. I also added the "Average" and "Net" columns like I did for the visualizations. I thought "Net" might be useful in the forecasting prediction if the model was to use features other than datetime ones in its predictions. I made all these changes and saved the CSV using a Jupyter Notebook file. I also did a similar process with the second dataset that was to be used for comparing the model's forecast to the real numbers. I forward filled the weekend days and created an "Average" column using the "High" and "Low" columns. Any numbers with decimals exceeding the hundredth decimal place were rounded to two decimal places.
 
 # Forecasting with XGBoost Regressor
--While visualizations into the features Open, Close, High, and Low are interesting, these 
-cannot be used to train the model. This is because these features have correlations with 
-the "Average" column and the model will just learn to predict a number near to these 
-values. The "Average" column can be used as the target as we want to be forecast the 
-stock price for the next 6 months and this feature serves as a balanced feature of the 
-price for each day. The "Net" and "Volume" columns are also interesting to look at but 
-wouldn't help much in training as having the net or volume from 6 months prior won't 
-help much in forecasting the future. Instead, our features are going to be Day of the 
-week, quarter, month, year, day of the year, day of month, week of year, "isWeekend", 
-and "US_holiday". The last two I created to help the model better understand small 
-outliers due to holidays or the repeated values from forward filling the weekends. I 
-also added 3 lag features: 'lag6', 'lag12', and 'lag18'. These represent data from 6 
-months prior, 12 months prior, and 18 months prior. 
+Now it's time to discuss the creation of the XGBoost model, training, and evaluation. Let's go through the steps I took:
+
+![Code image](forecastingimages/df.JPG)
+- I took a look at the cleaned dataset to make sure everything was in order.
+
+- I set the Date column as the index and made sure it was the datetime dtype.
+
+![Code image](forecastingimages/Microsoft_Stock_Price.JPG)
+- I plotted the "Average" column to get a look at the stock price across the entire dataset
+
+![Code image](forecastingimages/outlier_analysis.JPG)
+- I made a histogram to check for outliers
+
+![Code image](forecastingimages/train_test_folds.JPG)
+- I split the data into 5 folds and made a graph of the training and validation splits of these folds
+
+- I created functions for the creation of time series features and lag features.
+  - The time-series features were:
+    - Day of the week
+    - Quarter
+    - Month
+    - Year
+    - Day of the year
+    - Day of the month
+    - Week of the year
+    - isWeekend (whether day is weekend day or not)
+    - US_holiday (whether day is U.S. holiday or not)
+  - The lag features were:
+    - Lag6 (data from 6 months ago)
+    - Lag12 (data from 12 months ago)
+    - Lag18 (data from 18 months ago)
+
+![Code image](forecastingimages/Average_Stock_Price_by_Quarter.JPG)
+- I created a graph to look at the average stock price per quarter
+
+![Code image](forecastingimages/Average_Stock_Price_by_Month.JPG)
+- I also created a graph to look at the average stock price per month
+
+- I then began training, using a XGBoost Regressor with 3000 estimators, early stopping rounds set to 50, max_depth of 3, gbtree for the booster, and a learning rate of 0.01
+
+![Code image](forecastingimages/rmse_scores.JPG)
+- I then was able to score the folds using RMSE
+
+- Now that the model is trained, 
+
+While visualizations into the features Open, Close, High, and Low are interesting, these cannot be used to train the model. This is because these features have correlations with the "Average" column and the model will just learn to predict a number near to these values. The "Average" column can be used as the target as we want to be forecast the stock price for the next 6 months and this feature serves as a balanced feature of the price for each day. The "Net" and "Volume" columns are also interesting to look at but wouldn't help much in training as having the net or volume from 6 months prior won't help much in forecasting the future. Instead, our features are going to be Day of the week, quarter, month, year, day of the year, day of month, week of year, "isWeekend", and "US_holiday". The last two I created to help the model better understand small outliers due to holidays or the repeated values from forward filling the weekends. I also added 3 lag features: "lag6", "lag12", and "lag18". These represent data from 6 months prior, 12 months prior, and 18 months prior. 
 
 
 # Conclusion

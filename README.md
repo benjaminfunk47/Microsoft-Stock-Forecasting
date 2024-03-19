@@ -8,7 +8,7 @@ To refine my skills, I included the following in the personal project:
 - Model creation, evaluation, and visualization
 - Predictive Forecasting using XGBoost
 - Metrics evaluation and visualizations
-- Using AWS tools
+- AWS tools
 
 The technologies and libraries used for this project are:
 - Power BI
@@ -23,7 +23,7 @@ The technologies and libraries used for this project are:
 - AWS Sagemaker Studio Lab
 
 # Kaggle Datasets
-- The first step I took was to find a public dataset to use for training. I found a [Microsoft Stock Kaggle Dataset](https://www.kaggle.com/datasets/vijayvvenkitesh/microsoft-stock-time-series-analysis) which has stock price data for April 2015-April 2021. As the stock market is closed on weekends, Saturdays and Sundays are not included in the dates. With these days excluded, there are only 1,511 rows in the dataset.
+- The first step I took was to find a public dataset to use for training. I found a [Microsoft Stock Kaggle Dataset](https://www.kaggle.com/datasets/vijayvvenkitesh/microsoft-stock-time-series-analysis) which has stock price data for April 2015 - April 2021. As the stock market is closed on weekends, Saturdays and Sundays are not included in the dates. With these days excluded, there are only 1,511 rows in the dataset.
 
 ![Kaggle Preview](images/kaggle.JPG)
 ![Kaggle Preview](images/kaggle2.JPG)
@@ -39,4 +39,9 @@ The technologies and libraries used for this project are:
 
 - The target variable is going to be stock price for each day. As there are 4 columns related to stock price, I chose to create a column called "Average" later in the project to serve as the target variable. This column is created from averaging the "High" and "Low" columns to get the average value of the stock for each day.
 
-- I decided to find another dataset that has
+- I decided to find another dataset that includes data for the 6 months after the first dataset ended (April 2021 - October 2021). I could use this dataset to evaluate how well my model performed in its predictive forecast of 6 months. I found another [Microsoft Stock Kaggle Dataset](https://www.kaggle.com/datasets/berkayalan/microsoft-stock-data-between-2015-and-2022/data). This one had the "High" and "Low" columns that I needed to create the "Average" column like with the first dataset.
+
+![Kaggle Preview](images/kaggle3.JPG)
+![Kaggle Preview](images/kaggle4.JPG)
+
+

@@ -105,10 +105,13 @@ I then made visualizations of these features using Power BI. The goal of this wa
 
 
 # Data Preparation
-Before creating a model to make forecasts, I need to fill in the missing data for weekend days (so that our dataset is continuous) by forward filling (copying the last known data to fill the gaps) as well as removing the time information as the data is always recorded as the same time. I also added the "Average" and "Net" columns like I did for the visualizations. I thought "Net" might be useful in the forecasting prediction if the model was to use features other than datetime ones in its predictions. I made all these changes and saved the CSV using a Jupyter Notebook file. I also did a similar process with the second dataset that was to be used for comparing the model's forecast to the real numbers. I forward filled the weekend days and created an "Average" column using the "High" and "Low" columns. Any numbers with decimals exceeding the hundredth decimal place were rounded to two decimal places.
+Before creating a model to make forecasts, I need to fill in the missing data for weekend days (so that our dataset is continuous) by forward filling (copying the last known data to fill the gaps) as well as removing the time information as the data is always recorded as the same time. I also added the "Average" and "Net" columns like I did for the visualizations. I thought "Net" might be useful in the forecasting prediction if the model was to use features other than datetime ones in its predictions. I made all these changes and saved the CSV using a Jupyter Notebook file. I also did a similar process with the second dataset that was to be used for comparing the model's forecast to the real numbers. I forward filled the weekend days and created an "Average" column using the "High" and "Low" columns. Any numbers with decimals exceeding the hundredth decimal place were rounded to two decimal places. 
+
+While visualizations into the features "Open", "Close", "High", "Low", "Volume", "Net" are interesting, they cannot be used to train the model. The first four have correlations with the target, the "Average" column. Training with correlated features will lead to the model learning to predict a number near to these values. The "Average" column will be used as the target as we want to be forecast the stock price for the next 6 months and this feature serves as a balanced feature of the stock price for each day. The "Net" and "Volume" columns are also interesting to look at but wouldn't help much in training as having the net or volume from 6 months prior likely won't help much in forecasting.
 
 # Forecasting with XGBoost Regressor
-Now it's time to discuss the creation of the XGBoost model, training, and evaluation. Let's go through the steps I took:
+Now it's time to discuss the creation of the XGBoost model, training, and evaluation.
+Let's go through the steps I took:
 
 ![Code image](forecastingimages/df.JPG)
 - I took a look at the cleaned dataset to make sure everything was in order.
@@ -134,7 +137,7 @@ Now it's time to discuss the creation of the XGBoost model, training, and evalua
     - Day of the month
     - Week of the year
     - isWeekend (whether day is weekend day or not)
-    - US_holiday (whether day is U.S. holiday or not)
+    - US_holiday (whether day is U.S. holiday or not, retrieved from holidays Python library)
   - The lag features were:
     - Lag6 (data from 6 months ago)
     - Lag12 (data from 12 months ago)
@@ -149,11 +152,23 @@ Now it's time to discuss the creation of the XGBoost model, training, and evalua
 - I then began training, using a XGBoost Regressor with 3000 estimators, early stopping rounds set to 50, max_depth of 3, gbtree for the booster, and a learning rate of 0.01
 
 ![Code image](forecastingimages/rmse_scores.JPG)
-- I then was able to score the folds using RMSE
+- I then was able to score the folds using RMSE. We notice the folds have mostly similar scores which is good.
 
-- Now that the model is trained, 
+- I then trained the model on the entire datset to have a finalized model. We will use 500 estimators, 50 for early stopping rounds, max depth of 3, and a learning rate of 0.1. I chose such this learning rate as the model seemed to train too slowly when it was 0.01. The reason 500 estimators was chosen as that was generally the time in which the folds would stop early. This means that's around the number of estimators when the model begins to overfit. That's why I limited the number of estimators so that overfitting doesn't occur.
 
-While visualizations into the features Open, Close, High, and Low are interesting, these cannot be used to train the model. This is because these features have correlations with the "Average" column and the model will just learn to predict a number near to these values. The "Average" column can be used as the target as we want to be forecast the stock price for the next 6 months and this feature serves as a balanced feature of the price for each day. The "Net" and "Volume" columns are also interesting to look at but wouldn't help much in training as having the net or volume from 6 months prior won't help much in forecasting the future. Instead, our features are going to be Day of the week, quarter, month, year, day of the year, day of month, week of year, "isWeekend", and "US_holiday". The last two I created to help the model better understand small outliers due to holidays or the repeated values from forward filling the weekends. I also added 3 lag features: "lag6", "lag12", and "lag18". These represent data from 6 months prior, 12 months prior, and 18 months prior. 
+![Code image](forecastingimages/feature_importance.JPG)
+- I took a look at the feature importance scores of the features to see what had the largest impact on the target. It seems the year and the three lag features held the most importance, with the other features having little to no impact on the model.
 
+![Code image](forecastingimages/future_predictions.JPG)
+- I then used the fully trained model to forecast the six months after the training data ended.
+
+![Code image](forecastingimages/real_stock_price.JPG)
+- I filtered the data from the secondary dataset to be the same timeframe that the model is forecasting on.
+
+![Code image](forecastingimages/real_vs_preds.JPG)
+- I then compared the two on a graph and calculated the error of the model to be 38.61 Root Mean Squared Error.
+
+- Lastly, I saved the model as a JSON file.
 
 # Conclusion
+I was able to create a XGBoost Regressor model that makes forecsats 6 months into the future on the price of the Microsoft stock. I used Power BI, matplotlib, and seaborn for visualizations and used AWS Sagemaker Studio Lab for running Python code and using Python libraries. My model had an RMSE of about 35. The most important features for making predictions were the current year and data from 6 months, 12 months, and 18 months ago (lag features). While I'm satisfied with my model's performance, I believe there is room for improvement. As I only had date-related features to work with, I believe that additional numerical features could improve the model's performance. I would consider incorporating multiple other datasets to help improve the predictions, such as COVID-19 cases, other stock prices of similar companies, or maybe a dataset with some sort of numerical value determining growth or interest level of technological products.

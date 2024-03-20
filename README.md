@@ -111,20 +111,29 @@ While visualizations into the features "Open", "Close", "High", "Low", "Volume",
 
 # Forecasting with XGBoost Regressor
 Now it's time to discuss the creation of the XGBoost model, training, and evaluation.
-Let's go through the steps I took:
+
+## Visualize data
 
 ![Code image](forecastingimages/df.JPG)
 - I took a look at the cleaned dataset to make sure everything was in order.
 
 - I set the Date column as the index and made sure it was the datetime dtype.
 
-![Code image](forecastingimages/Microsoft_Stock_Price.JPG)
+![Code image](forecastingimages/Microsoft_Stock_Price.png)
 - I plotted the "Average" column to get a look at the stock price across the entire dataset
 
-![Code image](forecastingimages/outlier_analysis.JPG)
+![Code image](forecastingimages/outlier_analysis.png)
 - I made a histogram to check for outliers
 
-![Code image](forecastingimages/train_test_folds.JPG)
+![Code image](forecastingimages/Average_Stock_Price_by_Quarter.png)
+- I created a graph to look at the average stock price per quarter
+
+![Code image](forecastingimages/Average_Stock_Price_by_Month.png)
+- I also created a graph to look at the average stock price per month
+
+## Cross-validation Training
+
+![Code image](forecastingimages/train_test_folds.png)
 - I split the data into 5 folds and made a graph of the training and validation splits of these folds
 
 - I created functions for the creation of time series features and lag features.
@@ -143,32 +152,36 @@ Let's go through the steps I took:
     - Lag12 (data from 12 months ago)
     - Lag18 (data from 18 months ago)
 
-![Code image](forecastingimages/Average_Stock_Price_by_Quarter.JPG)
-- I created a graph to look at the average stock price per quarter
-
-![Code image](forecastingimages/Average_Stock_Price_by_Month.JPG)
-- I also created a graph to look at the average stock price per month
-
-- I then began training, using a XGBoost Regressor with 3000 estimators, early stopping rounds set to 50, max_depth of 3, gbtree for the booster, and a learning rate of 0.01
+- I then began training, using a XGBoost Regressor with 1000 estimators, early stopping rounds set to 50, max_depth of 3, gbtree for the booster, squared error for the objective, and a learning rate of 0.01
 
 ![Code image](forecastingimages/rmse_scores.JPG)
 - I then was able to score the folds using RMSE. We notice the folds have mostly similar scores which is good.
 
-- I then trained the model on the entire datset to have a finalized model. We will use 500 estimators, 50 for early stopping rounds, max depth of 3, and a learning rate of 0.1. I chose such this learning rate as the model seemed to train too slowly when it was 0.01. The reason 500 estimators was chosen as that was generally the time in which the folds would stop early. This means that's around the number of estimators when the model begins to overfit. That's why I limited the number of estimators so that overfitting doesn't occur.
+- I then trained the model on the entire datset to have a finalized model. We will use 500 estimators, 50 for early stopping rounds, squared error for the objective, max depth of 3, and a learning rate of 0.1. I chose such this learning rate as the model seemed to train too slowly when it was 0.01. The reason 500 estimators was chosen as that was generally the time in which the folds would stop early. This means that's around the number of estimators when the model begins to overfit. That's why I limited the number of estimators so that overfitting doesn't occur.
 
-![Code image](forecastingimages/feature_importance.JPG)
+![Code image](forecastingimages/feature_importance.png)
 - I took a look at the feature importance scores of the features to see what had the largest impact on the target. It seems the year and the three lag features held the most importance, with the other features having little to no impact on the model.
 
-![Code image](forecastingimages/future_predictions.JPG)
+## Predictive Forecasting and Model Evaluation
+
+![Code image](forecastingimages/future_predictions.png)
 - I then used the fully trained model to forecast the six months after the training data ended.
 
-![Code image](forecastingimages/real_stock_price.JPG)
+![Code image](forecastingimages/real_stock_price.png)
 - I filtered the data from the secondary dataset to be the same timeframe that the model is forecasting on.
 
-![Code image](forecastingimages/real_vs_preds.JPG)
+![Code image](forecastingimages/real_vs_preds.png)
 - I then compared the two on a graph and calculated the error of the model to be 38.61 Root Mean Squared Error.
 
-- Lastly, I saved the model as a JSON file.
+## Save Model
+
+- Lastly, I saved the model as a JSON file. The file was saved as "model.json".
 
 # Conclusion
-I was able to create a XGBoost Regressor model that makes forecsats 6 months into the future on the price of the Microsoft stock. I used Power BI, matplotlib, and seaborn for visualizations and used AWS Sagemaker Studio Lab for running Python code and using Python libraries. My model had an RMSE of about 35. The most important features for making predictions were the current year and data from 6 months, 12 months, and 18 months ago (lag features). While I'm satisfied with my model's performance, I believe there is room for improvement. As I only had date-related features to work with, I believe that additional numerical features could improve the model's performance. I would consider incorporating multiple other datasets to help improve the predictions, such as COVID-19 cases, other stock prices of similar companies, or maybe a dataset with some sort of numerical value determining growth or interest level of technological products.
+I was able to create a XGBoost Regressor model that makes forecsats 6 months into the future on the price of the Microsoft stock. I used Power BI, matplotlib, and seaborn for visualizations and used AWS Sagemaker Studio Lab for running Python code and using Python libraries. My model had an RMSE of about 35. The most important features for making predictions were the current year and data from 6 months, 12 months, and 18 months ago (lag features). While I'm satisfied with my model's performance, I believe there is room for improvement as I only had date-related features to work with. I believe that additional numerical features could improve the model's performance. This could be done by incorporating additional datasets.
+
+Here are some possible datasets or ideas to consider: 
+- U.S. COVID-19 cases
+- Other stock prices of similar or competing companies
+- Dataset with some sort of numerical value determining growth or interest level of technological products
+- Datasets including economic factors of the U.S. (like interest rates, inflation rates, GDP, unemployment rate, and so on)

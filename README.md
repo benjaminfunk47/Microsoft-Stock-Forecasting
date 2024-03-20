@@ -12,14 +12,14 @@ To refine my skills, I included the following in the personal project:
 
 The technologies and libraries used for this project are:
 - Power BI
-- Python
-- Pandas
-- NumPy
-- Matplotlib
-- Seaborn
-- Scikit-learn
-- Holidays (Python library for getting holiday dates)
-- XGBoost
+- Python 3.11.7
+- Pandas 1.5.3
+- NumPy 1.25.2
+- Matplotlib 3.6.0
+- Seaborn 0.13.2
+- Scikit-learn 1.2.2
+- Holidays 0.45 (Python library for getting holiday dates)
+- XGBoost 2.0.3
 - AWS Sagemaker Studio Lab
 
 # Kaggle Datasets
